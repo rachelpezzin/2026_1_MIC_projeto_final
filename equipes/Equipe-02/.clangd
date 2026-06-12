@@ -1,0 +1,16 @@
+CompileFlags:
+  Add:
+    - -xc
+    - --target=avr
+    - -D__AVR_ATmega328P__
+    - -DCONFIG_NONE
+    - -I/home/gabrielkduarte/aulas-micro/portifolio/aula9/
+    - -I/opt/microchip/xc8/v3.10/avr/avr/include
+    - -I/opt/microchip/xc8/v3.10/avr/lib/gcc/avr/5.4.0/include
+    - -I/opt/microchip/mplabx/v6.25/packs/Microchip/ATmega_DFP/3.3.279/xc8/avr/include
+    - -Wno-unknown-attributes
+    - -Wno-gnu-include-next
+Diagnostics:
+  Suppress:
+    - pp_expr_bad_token_start_expr
+    - -Wimplicit-function-declaration
