@@ -9,6 +9,8 @@ Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "equipe-03", "equipe-03\equi
 EndProject
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "equipe-02", "equipe-02\equipe-02.cproj", "{AE36DBF2-60EF-4B88-B686-0A3E9FD68D0F}"
 EndProject
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "equipe-01", "equipe-01\equipe-01.cproj", "{F6A665C2-ED81-46B1-A1DA-A4B0F21CEAEA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AVR = Debug|AVR
@@ -27,6 +29,10 @@ Global
 		{AE36DBF2-60EF-4B88-B686-0A3E9FD68D0F}.Debug|AVR.Build.0 = Debug|AVR
 		{AE36DBF2-60EF-4B88-B686-0A3E9FD68D0F}.Release|AVR.ActiveCfg = Release|AVR
 		{AE36DBF2-60EF-4B88-B686-0A3E9FD68D0F}.Release|AVR.Build.0 = Release|AVR
+		{F6A665C2-ED81-46B1-A1DA-A4B0F21CEAEA}.Debug|AVR.ActiveCfg = Debug|AVR
+		{F6A665C2-ED81-46B1-A1DA-A4B0F21CEAEA}.Debug|AVR.Build.0 = Debug|AVR
+		{F6A665C2-ED81-46B1-A1DA-A4B0F21CEAEA}.Release|AVR.ActiveCfg = Release|AVR
+		{F6A665C2-ED81-46B1-A1DA-A4B0F21CEAEA}.Release|AVR.Build.0 = Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
