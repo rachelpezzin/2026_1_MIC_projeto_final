@@ -1,0 +1,37 @@
+<circuit version="1.1.0-SR2" rev="260411" stepSize="1000000" stepsPS="1000000" NLsteps="100000" reaStep="1000000" animate="0" >
+
+<item itemtype="MCU" CircId="m328 TQFP-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-216,-88" rotation="0" hflip="1" vflip="1" label="m328 TQFP-1" idLabPos="0,-20" labelrot="0" valLabPos="-16,20" valLabRot="0" Frequency="16 MHz" Program="build/main.hex" Auto_Load="false" saveEepr="true" Rst_enabled="false" Ext_Osc="false" Wdt_enabled="false" Clk_Out="false" MainMcu="true" SerialMon="-1" />
+
+<item itemtype="Fixed Voltage" CircId="Fixed Voltage-3" mainComp="false" Show_id="false" Show_Val="false" Pos="-44,-40" rotation="-360" hflip="-1" vflip="1" label="Fixed Voltage-3" idLabPos="-64,-24" labelrot="0" valLabPos="-16,8" valLabRot="0" Voltage="5 V" Out="true" />
+
+<item itemtype="Voltage Source" CircId="Voltage Source-5" mainComp="false" ShowProp="MaxValue" Show_id="false" Show_Val="true" Pos="-40,-112" rotation="-360" hflip="-1" vflip="1" label="Voltage Source-5" idLabPos="-32,-48" labelrot="0" valLabPos="-8,30" valLabRot="0" Running="true" Value_Volt="2.605 V" MaxValue="5 V" MinValue="0 V" />
+
+<item itemtype="Led" CircId="Led-6" mainComp="false" ShowProp="Color" Show_id="false" Show_Val="true" Pos="-132,120" rotation="0" hflip="1" vflip="1" label="Led-6" idLabPos="-16,-24" labelrot="0" valLabPos="-22.217,10.6745" valLabRot="0" Color="Yellow" Grounded="false" Threshold="2.4 V" MaxCurrent="30 mA" Resistance="0.6 Ω" />
+
+<item itemtype="Led" CircId="Led-7" mainComp="false" ShowProp="Color" Show_id="false" Show_Val="true" Pos="-136,80" rotation="0" hflip="1" vflip="1" label="Led-7" idLabPos="-16,-24" labelrot="0" valLabPos="-16,9.43114" valLabRot="0" Color="Green" Grounded="false" Threshold="3.5 V" MaxCurrent="30 mA" Resistance="0.6 Ω" />
+
+<item itemtype="Led" CircId="Led-8" mainComp="false" ShowProp="Color" Show_id="false" Show_Val="true" Pos="-132,40" rotation="0" hflip="1" vflip="1" label="Led-8" idLabPos="-16,-24" labelrot="0" valLabPos="-16.6217,5.07925" valLabRot="0" Color="Red" Grounded="false" Threshold="1.8 V" MaxCurrent="30 mA" Resistance="0.6 Ω" />
+
+<item itemtype="Ground" CircId="Ground-12" mainComp="false" Show_id="false" Show_Val="false" Pos="-100,136" rotation="0" hflip="1" vflip="1" label="Ground-12" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
+
+<item itemtype="Ground" CircId="Ground-13" mainComp="false" Show_id="false" Show_Val="false" Pos="-64,120" rotation="0" hflip="1" vflip="1" label="Ground-13" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
+
+<item itemtype="Ground" CircId="Ground-14" mainComp="false" Show_id="false" Show_Val="false" Pos="-40,112" rotation="0" hflip="1" vflip="1" label="Ground-14" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
+
+<item itemtype="Connector" uid="Connector-1" startpinid="m328 TQFP-1-PORTV1" endpinid="Fixed Voltage-3-outnod" pointList="-120,-40,-60,-40" />
+
+<item itemtype="Connector" uid="Connector-2" startpinid="m328 TQFP-1-PORTV3" endpinid="Voltage Source-5-outPin" pointList="-120,-56,-68,-56,-68,-96" />
+
+<item itemtype="Connector" uid="Connector-3" startpinid="m328 TQFP-1-PORTB0" endpinid="Led-8-lPin" pointList="-176,8,-176,40,-148,40" />
+
+<item itemtype="Connector" uid="Connector-14" startpinid="Led-7-lPin" endpinid="m328 TQFP-1-PORTB1" pointList="-152,80,-168,80,-168,8" />
+
+<item itemtype="Connector" uid="Connector-15" startpinid="m328 TQFP-1-PORTB2" endpinid="Led-6-lPin" pointList="-160,8,-160,120,-148,120" />
+
+<item itemtype="Connector" uid="Connector-16" startpinid="Led-6-rPin" endpinid="Ground-12-Gnd" pointList="-116,120,-100,120" />
+
+<item itemtype="Connector" uid="Connector-17" startpinid="Ground-13-Gnd" endpinid="Led-7-rPin" pointList="-64,104,-64,80,-120,80" />
+
+<item itemtype="Connector" uid="Connector-18" startpinid="Led-8-rPin" endpinid="Ground-14-Gnd" pointList="-116,40,-40,40,-40,96" />
+
+</circuit>
