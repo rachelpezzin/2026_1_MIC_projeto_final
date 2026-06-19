@@ -1,9 +1,55 @@
 #include "avr/interrupt.h"
 #include "avr/io.h"
-#include "serial_logger.h"
+#include "util/delay.h"
+#include "serial.h"
 #include <xc.h>
 
 #define F_CPU 16000000UL
+const uint8_t DIGITO[10] = {
+	0b00111111, 
+	0b00000110, 
+	0b01011011, 
+	0b01001111,
+	0b01100110, 
+	0b01101101, 
+	0b01111101, 
+	0b00000111,
+	0b01111111, 
+	0b01101111};
+	
+void mostrar(uint16_t numero) {
+	// Separa os 4 dígitos
+	uint8_t d[4];
+	d[0] = (numero / 1000) % 10;  // dezena
+	d[1] = (numero / 100)  % 10;  // unidade
+	d[2] = (numero / 10)   % 10;  // décimo
+	d[3] =  numero         % 10;  // centésimo
+	PORTB |= (1 << PORTB2) | (1 << PORTB3) | (1 << PORTB4) | (1 << PORTB5);
+
+	// Dígito 0
+	PORTD = ~DIGITO[d[0]];
+	PORTB &= ~(1 << PORTB2); // Liga apenas PB2 (nível baixo)
+	_delay_ms(10);
+	PORTB |= (1 << PORTB2);  // Desliga
+
+	// Dígito 1 (com Ponto Decimal no PD0)
+	PORTD = ~(DIGITO[d[1]] | ~(1 << PORTD0));
+	PORTB &= ~(1 << PORTB3); // Liga apenas PB3
+	_delay_ms(10);
+	PORTB |= (1 << PORTB3);
+
+	// Dígito 2
+	PORTD = ~DIGITO[d[2]];
+	PORTB &= ~(1 << PORTB4); // Liga apenas PB4
+	_delay_ms(10);
+	PORTB |= (1 << PORTB4);
+
+	// Dígito 3
+	PORTD = ~DIGITO[d[3]];
+	PORTB &= ~(1 << PORTB5); // Liga apenas PB5
+	_delay_ms(10);
+	PORTB |= (1 << PORTB5);
+}
 
 void ADC_config() {
   ADMUX = (1 << REFS1) | (1 << REFS0) | // REFS=11: 1.1V
@@ -49,24 +95,25 @@ int main(void) {
   GPIO_config();
   ADC_config();
   log_init();
+  DDRD = 0xFF;
+  DDRB = 0xFF;
+  
   sei();
 
   PORTB |= (1 << PORTB1);
-  log_string("Lampada ON\r\n");
+ 	 uint16_t numero =0;
+ 
 
-  while (1) {
-    if (flag_nova_amostra) {
-      flag_nova_amostra = 0;
-      uint16_t raw = ADC_Result;
-      uint16_t t = LM35_celcius(raw);
+ while (1) {
 
-      log_string("ADC=");
-      log_dec(raw);
-      log_string(" T=");
-      log_dec(t / 10);
-      log_string(".");
-      log_dec(t % 10);
-      log_string(" C\r\n");
-    }
-  }
+	 // A leitura do sensor ocorre de tempos em tempos
+	 if (flag_nova_amostra) {
+		 flag_nova_amostra = 0;
+		 uint16_t raw = ADC_Result;
+		 numero = LM35_celcius(raw); // Você pode usar essa variável depois
+		 	  }
+	mostrar(numero);
+	log_dec(numero);
+	log_string("\n");
+ }
 }
