@@ -7,23 +7,23 @@
 #define BAUD      9600
 #define UBRR_VAL  ((F_CPU / (16UL * BAUD)) - 1)
 
-#define BUF_SIZE  64               // deve ser potência de 2
+#define BUF_SIZE  64               // deve ser potï¿½ncia de 2
 #define BUF_MASK  (BUF_SIZE - 1)
 
 // ??? Buffer circular ????????????????????????????????????????????
 static volatile uint8_t buf[BUF_SIZE];
-static volatile uint8_t head = 0;   // índice de escrita (produtor: log_*)
-static volatile uint8_t tail = 0;   // índice de leitura  (consumidor: ISR)
+static volatile uint8_t head = 0;   // ï¿½ndice de escrita (produtor: log_*)
+static volatile uint8_t tail = 0;   // ï¿½ndice de leitura  (consumidor: ISR)
 
 // ??? ISR: Transmit Data Register Empty ??????????????????????????
-// Dispara sempre que UDR0 está pronto para receber o próximo byte.
+// Dispara sempre que UDR0 estï¿½ pronto para receber o prï¿½ximo byte.
 // Quando o buffer esvazia, a ISR se desabilita sozinha.
 ISR(USART_UDRE_vect) {
 	UDR0 = buf[tail];
 	tail = (tail + 1) & BUF_MASK;
 
 	if (head == tail) {
-		// Buffer vazio — desliga a interrupção para não ficar disparando
+		// Buffer vazio ï¿½ desliga a interrupï¿½ï¿½o para nï¿½o ficar disparando
 		UCSR0B &= ~(1 << UDRIE0);
 	}
 }
@@ -33,16 +33,16 @@ void log_init(void) {
 	UBRR0  = UBRR_VAL;
 	UCSR0A = (0 << U2X0);                         // velocidade normal
 	UCSR0B = (1 << TXEN0);                        // TX habilitado, UDRIE0 desligado
-	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);       // 8 bits, assíncrono, sem paridade, 1 stop
+	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);       // 8 bits, assï¿½ncrono, sem paridade, 1 stop
 }
 
 // ??? buffer_put (interna) ???????????????????????????????????????
 // Insere 1 byte no buffer. Bloqueia se o buffer estiver cheio.
-// Se o buffer estava vazio, liga a interrupção UDRE para iniciar a transmissão.
+// Se o buffer estava vazio, liga a interrupï¿½ï¿½o UDRE para iniciar a transmissï¿½o.
 static void buffer_put(uint8_t data) {
 	uint8_t next = (head + 1) & BUF_MASK;
 
-	// Espera se buffer cheio (proteção — na prática 64 bytes dificilmente enchem)
+	// Espera se buffer cheio (proteï¿½ï¿½o ï¿½ na prï¿½tica 64 bytes dificilmente enchem)
 	while (next == tail);
 
 	buf[head] = data;
@@ -51,7 +51,7 @@ static void buffer_put(uint8_t data) {
 	uint8_t estava_vazio = (head == tail);
 	head = next;
 	if (estava_vazio) {
-		UCSR0B |= (1 << UDRIE0);   // liga a ISR — dispara imediatamente pois UDRE0=1
+		UCSR0B |= (1 << UDRIE0);   // liga a ISR ï¿½ dispara imediatamente pois UDRE0=1
 	}
 	sei();
 }
@@ -70,7 +70,7 @@ void log_byte(uint8_t byte) {
 
 // ??? log_dec ????????????????????????????????????????????????????
 void log_dec(uint16_t num) {
-	char digits[6];     // 65535 = 5 dígitos + espaço
+	char digits[6];     // 65535 = 5 dï¿½gitos + espaï¿½o
 	uint8_t i = 0;
 
 	if (num == 0) {
@@ -78,7 +78,7 @@ void log_dec(uint16_t num) {
 		return;
 	}
 
-	// Extrai dígitos na ordem inversa
+	// Extrai dï¿½gitos na ordem inversa
 	while (num > 0) {
 		digits[i++] = '0' + (num % 10);
 		num /= 10;
@@ -97,10 +97,35 @@ void log_hex(uint8_t byte) {
 	buffer_put(hex[byte & 0x0F]);
 }
 
-// ??? log_is_busy ????????????????????????????????????????????????
+// ??? log_is_busy ?????????????????????????????????????????????????
 uint8_t log_is_busy(void) {
 	cli();
 	uint8_t busy = (head != tail);
 	sei();
 	return busy;
+}
+
+// ??? log_tx_release ???????????????????????????????????????????????
+// Aguarda toda a transmissï¿½o terminar, limpa flags e desativa TXEN0.
+// Libera o pino PD1 (TXD) para uso como segmento B do display.
+// Deve ser chamada ANTES de manipular PORTD para o display.
+void log_tx_release(void) {
+	// Aguarda buffer circular esvaziar (ISR jï¿½ desligou UDRIE0)
+	while (head != tail);
+
+	// Aguarda o ï¿½ltimo byte sair do shift register
+	while (!(UCSR0A & (1 << TXC0)));
+
+	// Limpa flag TX complete para a prï¿½xima transmissï¿½o
+	UCSR0A |= (1 << TXC0);
+
+	// Desativa o transmissor UART â†’ libera PD1 (volta a ser GPIO)
+	UCSR0B &= ~(1 << TXEN0);
+}
+
+// ??? log_tx_claim ?????????????????????????????????????????????????
+// Reativa o transmissor UART apï¿½s o display.
+// PD1 volta a ser TXD, pino fica HIGH (idle).
+void log_tx_claim(void) {
+	UCSR0B |= (1 << TXEN0);
 }
