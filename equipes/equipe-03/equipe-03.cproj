@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>7.0</ProjectVersion>
     <ToolchainName>com.microchip.xc8</ToolchainName>
-    <ProjectGuid>{ae36dbf2-60ef-4b88-b686-0a3e9fd68d0f}</ProjectGuid>
+    <ProjectGuid>{9875951b-e1bf-4a4a-ac52-92eb17e03094}</ProjectGuid>
     <avrdevice>ATmega328P</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
@@ -12,9 +12,9 @@
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>Equipe-02</AssemblyName>
-    <Name>equipe-02</Name>
-    <RootNamespace>Equipe-02</RootNamespace>
+    <AssemblyName>equipe_03</AssemblyName>
+    <Name>equipe_03</Name>
+    <RootNamespace>equipe_03</RootNamespace>
     <ToolchainFlavour>XC8_2.36</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
@@ -30,7 +30,6 @@
     <EraseKey />
     <AsfFrameworkConfig>
       <framework-data xmlns="">
-
         <options />
         <configurations />
         <files />
@@ -40,39 +39,32 @@
           <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.52.0" />
         </dependencies>
       </framework-data>
-
     </AsfFrameworkConfig>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
       <com.microchip.xc8>
-        <com.microchip.xc8.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>(%24DeviceMacro)</Value>
-          </ListValues>
-        </com.microchip.xc8.compiler.symbols.DefSymbols>
-      </com.microchip.xc8>
+  <com.microchip.xc8.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>(%24DeviceMacro)</Value>
+    </ListValues>
+  </com.microchip.xc8.compiler.symbols.DefSymbols>
+</com.microchip.xc8>
     </ToolchainSettings>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
       <com.microchip.xc8>
-        <com.microchip.xc8.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>(%24DeviceMacro)</Value>
-          </ListValues>
-        </com.microchip.xc8.compiler.symbols.DefSymbols>
-      </com.microchip.xc8>
+  <com.microchip.xc8.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>(%24DeviceMacro)</Value>
+    </ListValues>
+  </com.microchip.xc8.compiler.symbols.DefSymbols>
+</com.microchip.xc8>
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="main.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="serial.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="serial.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
