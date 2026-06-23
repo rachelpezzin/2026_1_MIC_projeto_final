@@ -62,7 +62,7 @@ void mostrar(uint16_t adc_raw) {
 // controle PWM da lâmpada
 #define PWM_PERIODO 255
 
-#define SETPOINT 2000 // 20.00 °C
+#define SETPOINT 8000 // 20.00 °C
 #define HISTERESE 100 // 1.00 °C
 
 uint8_t PWM_duty = 0; // duty cycle atual (0=apagada, 255=máxima)
@@ -98,15 +98,14 @@ void Timer0_config() {
 
 // PWM da lâmpada no PB1 (OC1A) — Timer1 16 bits
 void PWM_config() {
-  TCCR1A = (1 << WGM11) | (1 << WGM10)   // WGM=1110: Fast PWM, TOP=ICR1
-           | (1 << COM1A1)               // COM1A=10: não-inversor em OC1A
-           | (0 << COM1A0);
-  TCCR1B = (1 << WGM13) | (1 << WGM12)    // WGM bits superior
-           | (1 << CS11) | (1 << CS10);   // CS=011: prescaler /64
-  // PWM = 16MHz / 64 / (255+1) ≈ 976 Hz
+	TCCR1A = (1 << WGM11) | (0 << WGM10)   // CORREÇÃO: WGM10 em 0 para o Modo 14!
+	| (1 << COM1A1)               // COM1A=10: não-inversor em OC1A
+	| (0 << COM1A0);
+	TCCR1B = (1 << WGM13) | (1 << WGM12)
+	| (1 << CS11) | (1 << CS10);
 
-  ICR1 = PWM_PERIODO;  // TOP = 255
-  OCR1A = 0;            // duty inicial = 0 (desligado)
+	ICR1 = PWM_PERIODO;  // TOP = 255
+	OCR1A = 0;           // duty inicial = 0 (desligado)
 }
 
 void PWM_set_duty(uint8_t duty) {
@@ -152,7 +151,7 @@ int main(void) {
 
       // liga/desliga
       if (numero < SETPOINT - HISTERESE) {
-        PWM_set_duty(255);
+        PWM_set_duty(225);
       } else if (numero > SETPOINT + HISTERESE) {
         PWM_set_duty(0); 
       }
