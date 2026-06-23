@@ -3,6 +3,7 @@
 #include "serial.h"
 #include "util/delay.h"
 #include <xc.h>
+#include <stdlib.h>
 
 #define F_CPU 16000000UL
 
@@ -24,6 +25,18 @@ uint16_t LM35_celcius(uint16_t adc_raw) {
     uint32_t produto = adc_raw * 11000UL; 
     return produto / 1024UL;
 }
+
+void escreve_display(uint8_t valor_tabela) {
+	uint8_t segs = ~valor_tabela; // Inverte o valor (lógica do display)	
+	PORTD = (PORTD & 0x03) | (segs & 0xFC);// Escreve os bits 2 a 7 no PORTD, mantendo o RX/TX livres
+	
+	if (segs & (1 << 0)) PORTC |= (1 << PORTC1);// Direciona o bit 0 (segmento A) para o pino PC1
+	else                 PORTC &= ~(1 << PORTC1);
+	
+	if (segs & (1 << 1)) PORTC |= (1 << PORTC2);// Direciona o bit 1 (segmento B) para o pino PC2
+	else                 PORTC &= ~(1 << PORTC2);
+}
+
 void mostrar(uint16_t adc_raw) {
   uint16_t valor = LM35_celcius(adc_raw);  // centésimos de °C
 
@@ -35,25 +48,25 @@ void mostrar(uint16_t adc_raw) {
   PORTB |= (1 << PORTB2) | (1 << PORTB3) | (1 << PORTB4) | (1 << PORTB5);
 
   // Dígito 0
-  PORTD = ~DIGITO[d[0]];
+escreve_display(DIGITO[d[0]]);
   PORTB &= ~(1 << PORTB2);
   _delay_ms(5);
   PORTB |= (1 << PORTB2); // Desliga
 
   // Dígito 1 (com Ponto Decimal no PD7)
-  PORTD = ~(DIGITO[d[1]] | (1 << PORTD7));
+  escreve_display(DIGITO[d[1]] | (1 << 7));
   PORTB &= ~(1 << PORTB3);
   _delay_ms(5);
   PORTB |= (1 << PORTB3);
 
   // Dígito 2
-  PORTD = ~DIGITO[d[2]];
+  escreve_display(DIGITO[d[2]]);
   PORTB &= ~(1 << PORTB4);
   _delay_ms(5);
   PORTB |= (1 << PORTB4);
 
   // Dígito 3
-  PORTD = ~DIGITO[d[3]];
+  escreve_display(DIGITO[d[3]]);
   PORTB &= ~(1 << PORTB5);
   _delay_ms(5);
   PORTB |= (1 << PORTB5);
@@ -61,9 +74,11 @@ void mostrar(uint16_t adc_raw) {
 
 // controle PWM da lâmpada
 #define PWM_PERIODO 255
+char rx_buffer[8];    // Vetor para guardar os caracteres ("2200")
+uint8_t rx_index = 0; // Posição atual do vetor
 
-#define SETPOINT 8000 // 20.00 °C
-#define HISTERESE 100 // 1.00 °C
+uint16_t setpoint = 2200;// 20.00 °C
+#define HISTERESE 200 // 1.00 °C
 
 uint8_t PWM_duty = 0; // duty cycle atual (0=apagada, 255=máxima)
 
@@ -86,7 +101,8 @@ void ADC_config() {
 
 void GPIO_config() {
   DDRB = (1 << DDB0) | (1 << DDB1) | (1 << DDB2) | (1 << DDB3) | (1 << DDB4) | (1 << DDB5); // PB0-PB5 saídas
-  DDRD = 0xFF;                                     // PD0-PD7 saídas (segmentos)
+  DDRD = 0xFC;//  define PD2 a PD7 como saída, deixando PD0 e PD1 livres pra uart
+  DDRC |= (1 << DDC1) | (1 << DDC2);      // Configura PC1 e PC2 como saídas para os segmentos A e B                          
 }
 
 // Timer0: ADC trigger via overflow (~61 Hz)
@@ -120,16 +136,41 @@ void PWM_set_duty(uint8_t duty) {
 }
 ISR(ADC_vect) {
 	static uint8_t contador = 0; // A variável 'static' não perde o valor entre as interrupções
+	static uint16_t acumulador = 0; // Nova variável para somar as leituras
+	acumulador += ADC; // Soma a leitura atual no acumulador
 	contador++;
 	// Quando atingir 15 leituras (aprox. 4 vezes por segundo)
 	if (contador >= 15) {
-		ADC_Result = ADC;
+		ADC_Result = acumulador / 15; // Tira a média das 15 leituras
 		flag_nova_amostra = 1;
 		contador = 0; // Zera para recomeçar o ciclo
+		acumulador = 0; // Zera a soma para o próximo bloco de médias
 	}
 	//limpando a flag de overflow do Timer0 para armar o próximo gatilho
 	TIFR0 = (1 << TOV0);
 }
+ ISR(USART_RX_vect) {
+	char c = UDR0;
+	// Se o caractere for um número de 0 a 9, guarda no buffer
+	if (c >= '0' && c <= '9') {
+		if (rx_index < 7) { // Protege contra estourar o tamanho do vetor
+			rx_buffer[rx_index] = c;
+			rx_index++;
+		}
+	}
+	// Se receber um "Enter" (\r ou \n), finaliza e atualiza o setpoint
+	else if (c == '\n' || c == '\r') {
+		if (rx_index > 0) {
+			rx_buffer[rx_index] = '\0'; // Finaliza a string (padrão do C)
+			uint16_t novo_valor = atoi(rx_buffer); // Converte o texto para número inteiro
+			// Proteção para aceitar apenas valores válidos (ex: até 99.99 °C)
+			if (novo_valor <= 9999) {
+				setpoint = novo_valor;
+			}
+			rx_index = 0; // Zera o índice para estar pronto para o próximo comando
+		}
+	}
+ }
 
 int main(void) {
   Timer0_config();
@@ -138,6 +179,7 @@ int main(void) {
   ADC_config();
   log_init();
 
+UCSR0B |= (1 << RXEN0) | (1 << RXCIE0);
   sei();
 
   uint16_t numero = 0;
@@ -150,18 +192,17 @@ int main(void) {
       numero = LM35_celcius(raw);
 
       // liga/desliga
-      if (numero < SETPOINT - HISTERESE) {
+      if (numero < setpoint - HISTERESE) {
         PWM_set_duty(225);
-      } else if (numero > SETPOINT + HISTERESE) {
+      } else if (numero > setpoint + HISTERESE) {
         PWM_set_duty(0); 
       }
-    }
-
     log_dec(numero);
     log_string("\n");
-
     log_tx_release();                    // aguarda serial e libera PD1
+	log_tx_claim();                      //  UART TX assume
+    }
     mostrar(ADC_Result);
-    log_tx_claim();                      //  UART TX assume
+    
   }
 }
