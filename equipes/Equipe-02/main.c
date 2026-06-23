@@ -62,8 +62,8 @@ void mostrar(uint16_t adc_raw) {
 // controle PWM da lâmpada
 #define PWM_PERIODO 255
 
-#define SETPOINT 3000 // 30.00 °C
-#define HISTERESE 200 // 2.00 °C
+#define SETPOINT 2000 // 20.00 °C
+#define HISTERESE 100 // 1.00 °C
 
 uint8_t PWM_duty = 0; // duty cycle atual (0=apagada, 255=máxima)
 
@@ -71,9 +71,8 @@ uint16_t ADC_Result;
 uint8_t flag_nova_amostra;
 
 void ADC_config() {
-  ADMUX = (1 << REFS1) | (1 << REFS0) | // REFS=11: 1.1V
-          (0 << MUX3) | (0 << MUX2) | (0 << MUX1) |
-          (0 << MUX0); // MUX=0000: ADC0
+	ADMUX = (1 << REFS1) | (1 << REFS0) |
+	  (0 << MUX3) | (0 << MUX2) | (0 << MUX1) |(0 << MUX0); 
 
   ADCSRA = (1 << ADEN) | (1 << ADATE) |                // ADEN ADATE
            (1 << ADIE) |                               // ADIE
@@ -120,10 +119,17 @@ void PWM_set_duty(uint8_t duty) {
     TCCR1A |= (1 << COM1A1);                     // COM1A=10: não-inversor
   }
 }
-
 ISR(ADC_vect) {
-  ADC_Result = ADC;
-  flag_nova_amostra = 1;
+	static uint8_t contador = 0; // A variável 'static' não perde o valor entre as interrupções
+	contador++;
+	// Quando atingir 15 leituras (aprox. 4 vezes por segundo)
+	if (contador >= 15) {
+		ADC_Result = ADC;
+		flag_nova_amostra = 1;
+		contador = 0; // Zera para recomeçar o ciclo
+	}
+	//limpando a flag de overflow do Timer0 para armar o próximo gatilho
+	TIFR0 = (1 << TOV0);
 }
 
 int main(void) {
