@@ -30,7 +30,7 @@ Todas as equipes devem entregar, no mínimo, um sistema funcionando com:
 | Amostragem por timer/interrupção | 2 | Substituir o uso de `_delay_ms()` no laço de controle por uma base de tempo gerada por timer/interrupção, garantindo período de amostragem constante. | OK |
 | Display local (LCD ou 7 segmentos) | 2 | Mostrar temperatura atual e setpoint em um display do kit, sem depender do terminal serial. | OK |
 | Log de dados em EEPROM | 2 | Armazenar um histórico de temperaturas na EEPROM interna, recuperável após reset/desligamento. | PENDENTE |
-| Sistema de alarme configurável | 2 | Sinalizar (LED/buzzer) quando a temperatura saia de uma faixa configurável via serial. | PENDENTE |
+| Sistema de alarme configurável | 2 | Sinalizar (LED/buzzer) quando a temperatura saia de uma faixa configurável via serial. | OK |
 | Setpoint via botão físico | 1 | Permitir ajustar o setpoint usando botões do kit, com debounce implementado via interrupção. | OK |
 
 **Total disponível nos extras: 18 pontos** (4 + 3 + 2 + 2 + 2 + 2 + 2 + 1). Combinado
