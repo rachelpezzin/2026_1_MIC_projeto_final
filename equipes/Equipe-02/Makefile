@@ -17,7 +17,8 @@ SIZE      = avr-size
 
 # Diretórios de include (xc.h + headers AVR do XC8)
 XC8_AVR   = /opt/microchip/xc8/v3.10/avr
-INCLUDES  = -I$(XC8_AVR)/lib/gcc/avr/5.4.0/include
+INCLUDES  = -Iinclude
+INCLUDES += -I$(XC8_AVR)/lib/gcc/avr/5.4.0/include
 INCLUDES += -I$(XC8_AVR)/avr/include
 
 # Configurações do AVRDUDE (upload)
@@ -28,7 +29,7 @@ UPLOAD_PORT = $(if $(PORT),$(PORT),/dev/ttyACM0)
 UPLOAD_BAUD = $(if $(BAUD),$(BAUD),115200)
 
 # Arquivos do projeto
-SOURCES = main.c serial.c
+SOURCES = src/main.c src/serial.c src/display.c src/lm35.c
 TARGET  = main
 OUTDIR  = build
 

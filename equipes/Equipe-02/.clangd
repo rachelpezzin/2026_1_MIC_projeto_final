@@ -4,7 +4,8 @@ CompileFlags:
     - --target=avr
     - -D__AVR_ATmega328P__
     - -DCONFIG_NONE
-    - -I/home/gabrielkduarte/2026_1_MIC_projeto_final/equipes/Equipe-02
+    - -I/home/gabrielkduarte/2026_1_MIC_projeto_final/equipes/Equipe-02/include
+    - -I/home/gabrielkduarte/2026_1_MIC_projeto_final/equipes/Equipe-02/src
     - -I/opt/microchip/xc8/v3.10/avr/avr/include
     - -I/opt/microchip/xc8/v3.10/avr/lib/gcc/avr/5.4.0/include
     - -I/opt/microchip/mplabx/v6.25/packs/Microchip/ATmega_DFP/3.3.279/xc8/avr/include
