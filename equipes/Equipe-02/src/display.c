@@ -21,18 +21,19 @@ const uint8_t SEGMENTO[10] = {
 };
 
 void aciona_segmentos(uint8_t valor_tabela) {
-  uint8_t segs = ~valor_tabela;
-  PORTD = (PORTD & 0x03) | (segs & 0xFC); // bits 2–7 no PORTD
+  uint8_t segs = ~valor_tabela;                              // inverte: catodo comum
+  PORTD = (PORTD & ((1 << PORTD0) | (1 << PORTD1)))         // preserva PD0(RX), PD1(TX)
+        | (segs & ~((1 << PORTD0) | (1 << PORTD1)));        // segmentos C–DP em PD2–PD7
 
-  if (segs & (1 << 0))
-    PORTC |= (1 << PORTC1); // segmento A
+  if ((segs & (1 << 0)))
+    PORTC |= (1 << PORTC1);  // segmento A aceso
   else
-    PORTC &= ~(1 << PORTC1);
+    PORTC &= ~(1 << PORTC1); // segmento A apagado
 
-  if (segs & (1 << 1))
-    PORTC |= (1 << PORTC2); // segmento B
+  if ((segs & (1 << 1)))
+    PORTC |= (1 << PORTC2);  // segmento B aceso
   else
-    PORTC &= ~(1 << PORTC2);
+    PORTC &= ~(1 << PORTC2); // segmento B apagado
 }
 
 void atualiza_display(uint16_t centesimos) {
@@ -43,28 +44,29 @@ void atualiza_display(uint16_t centesimos) {
   d[3] = centesimos % 10;          // centésimos
 
   PORTB |= (1 << PORTB2) | (1 << PORTB3) | (1 << PORTB4) | (1 << PORTB5);
+  // desliga todos os dígitos (catodo comum: HIGH = desligado)
 
   // dígito 0 (dezenas)
   aciona_segmentos(SEGMENTO[d[0]]);
-  PORTB &= ~(1 << PORTB2);
+  PORTB &= ~(1 << PORTB2); // liga dígito 0 (catodo comum)
   _delay_ms(5);
-  PORTB |= (1 << PORTB2);
+  PORTB |= (1 << PORTB2);  // desliga dígito 0
 
   // dígito 1 (unidades, com ponto decimal)
   aciona_segmentos(SEGMENTO[d[1]] | (1 << 7));
-  PORTB &= ~(1 << PORTB3);
+  PORTB &= ~(1 << PORTB3); // liga dígito 1
   _delay_ms(5);
-  PORTB |= (1 << PORTB3);
+  PORTB |= (1 << PORTB3);  // desliga dígito 1
 
   // dígito 2 (décimos)
   aciona_segmentos(SEGMENTO[d[2]]);
-  PORTB &= ~(1 << PORTB4);
+  PORTB &= ~(1 << PORTB4); // liga dígito 2
   _delay_ms(5);
-  PORTB |= (1 << PORTB4);
+  PORTB |= (1 << PORTB4);  // desliga dígito 2
 
   // dígito 3 (centésimos)
   aciona_segmentos(SEGMENTO[d[3]]);
-  PORTB &= ~(1 << PORTB5);
+  PORTB &= ~(1 << PORTB5); // liga dígito 3
   _delay_ms(5);
-  PORTB |= (1 << PORTB5);
+  PORTB |= (1 << PORTB5);  // desliga dígito 3
 }

@@ -21,17 +21,26 @@ static volatile uint8_t tail = 0;    // índice de leitura
 
 // --- ISR TX: dispara quando UDR0 está pronto ---
 ISR(USART_UDRE_vect) {
-    UDR0 = buf[tail];
+    UDR0 = buf[tail];                           // escreve próximo byte no TX
     tail = (tail + 1) & BUF_MASK;
-    if (head == tail) UCSR0B &= ~(1 << UDRIE0);  // auto-desliga
+    if (head == tail) UCSR0B &= ~(1 << UDRIE0);  // desliga interrupção (buffer vazio)
 }
 
-// --- serial_init: 9600 8N1, TX + RX + IRQ ---
+// --- serial_init: 9600 8N1, TX + RX + interrupção ---
 void serial_init(void) {
-    UBRR0  = UBRR_VAL;
-    UCSR0A = (0 << U2X0);
-    UCSR0B = (1 << TXEN0) | (1 << RXEN0) | (1 << RXCIE0);
-    UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+    // UBRR0: define baudrate 9600 bps (16M / 16 / 9600 - 1)
+    UBRR0  = UBRR_VAL;       // 103
+    // UCSR0A: velocidade normal (U2X0=0), sem multi-processador (MPCM0=0)
+    UCSR0A = (0 << U2X0);    // sem dobro de velocidade
+    // UCSR0B: TX enable, RX enable, RX complete interrupção enable
+    UCSR0B = (1 << TXEN0)    // habilita transmissor
+           | (1 << RXEN0)    // habilita receptor
+           | (1 << RXCIE0);  // habilita interrupção ao receber byte
+    // UCSR0C: 8 bits, 1 stop, sem paridade, assíncrono
+    UCSR0C = (1 << UCSZ01)   // 8-bit (UCSZ0[2:0]=011)
+           | (1 << UCSZ00);
+    // USBS0=0 (1 stop), UPM0[1:0]=00 (sem paridade),
+    // UMSEL0[1:0]=00 (assíncrono), UCSZ02=0 — omitidos (reset default)
 }
 
 // --- buffer_put (interna): insere 1 byte no buffer circular ---
@@ -43,7 +52,7 @@ static void buffer_put(uint8_t data) {
     cli();
     uint8_t estava_vazio = (head == tail);
     head = next;
-    if (estava_vazio) UCSR0B |= (1 << UDRIE0);  // liga ISR
+    if (estava_vazio) UCSR0B |= (1 << UDRIE0);  // liga interrupção de data register empty
     sei();
 }
 
